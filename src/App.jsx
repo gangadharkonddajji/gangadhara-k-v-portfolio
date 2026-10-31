@@ -2,6 +2,7 @@ import { useSmoothScroll } from './hooks/useSmoothScroll'
 import Cursor from './components/Cursor'
 import Hud from './components/Hud'
 import Hero from './components/Hero'
+import Projects from './components/Projects'
 
 export default function App() {
   useSmoothScroll()
@@ -12,6 +13,7 @@ export default function App() {
       <Hud />
       <main>
         <Hero />
+        <Projects />
       </main>
     </>
   )
