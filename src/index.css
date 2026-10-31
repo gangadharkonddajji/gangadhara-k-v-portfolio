@@ -1,0 +1,76 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Space Grotesk', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --color-ink: #08090c;
+  --color-panel: #0f1116;
+  --color-bone: #e8e6df;
+  --color-dim: #8a8f98;
+  --color-signal: #ff5b1f;
+}
+
+html {
+  background: #08090c;
+}
+
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+body {
+  margin: 0;
+  background: #08090c;
+  color: #e8e6df;
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+.hud-grid {
+  background-image:
+    linear-gradient(to right, rgba(232, 230, 223, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(232, 230, 223, 0.04) 1px, transparent 1px);
+  background-size: 64px 64px;
+}
+
+.hud-frame {
+  position: relative;
+}
+
+.hud-frame::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 14px;
+  height: 14px;
+  border-top: 2px solid #ff5b1f;
+  border-left: 2px solid #ff5b1f;
+  pointer-events: none;
+}
+
+.hud-frame::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 14px;
+  height: 14px;
+  border-bottom: 2px solid #ff5b1f;
+  border-right: 2px solid #ff5b1f;
+  pointer-events: none;
+}
+
+@media (pointer: fine) {
+  body.has-cursor,
+  body.has-cursor a,
+  body.has-cursor button {
+    cursor: none;
+  }
+}
