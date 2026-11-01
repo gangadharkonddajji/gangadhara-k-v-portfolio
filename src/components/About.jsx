@@ -96,7 +96,7 @@ export default function About() {
             {portraitSrc ? (
               <img
                 src={portraitSrc}
-                alt="Gangadhara K V portrait"
+                alt="Gangadhara K V — Python Full Stack Developer, TAP Academy student"
                 className="h-full w-full object-cover grayscale opacity-90 transition-all duration-700 hover:grayscale-0 hover:opacity-100 hover:scale-[1.02]"
               />
             ) : (
