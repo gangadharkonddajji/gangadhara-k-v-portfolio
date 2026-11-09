@@ -79,7 +79,13 @@ export const projects = [
     number: "01",
     title: "Engineering Calculator",
     description:
-      "A simple web application that helps users perform common engineering calculations, including force, pressure, power, and unit conversions.",
+      "A specialized technical web tool engineered to compute essential mechanical and physical formulas with high precision, interactive inputs, and real-time outputs.",
+    features: [
+      "Force Calculations (F = m · a)",
+      "Pressure Analysis (P = F / A)",
+      "Power & Work Equations",
+      "Dynamic Engineering Unit Conversions",
+    ],
     tags: ["HTML", "CSS", "JavaScript"],
     year: "2026",
     liveUrl: "",
