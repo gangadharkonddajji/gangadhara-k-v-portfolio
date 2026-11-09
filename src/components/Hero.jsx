@@ -141,15 +141,7 @@ export default function Hero() {
 
         {/* Right Column: HUD Frame holding 3D Centerpiece */}
         <div data-hero="fade" className="w-full">
-          <div className="hud-frame relative border border-bone/10 bg-panel/40 h-[48vh] min-h-[340px] lg:h-[70vh] flex items-center justify-center overflow-hidden">
-            {/* Corner Metadata Overlay */}
-            <span className="absolute top-3 left-3 font-mono text-[10px] uppercase tracking-[0.25em] text-dim pointer-events-none z-10">
-              core.view — drag to rotate
-            </span>
-            <span className="absolute bottom-3 right-3 font-mono text-[10px] uppercase tracking-[0.25em] text-dim pointer-events-none z-10">
-              {personalInfo.city}
-            </span>
-
+          <div className="hud-frame relative border border-bone/10 bg-panel/40 h-[50vh] min-h-[380px] lg:h-[70vh] flex items-center justify-center overflow-hidden">
             {/* Lazy 3D WebGL Canvas */}
             <Suspense fallback={null}>
               <HeroScene />
