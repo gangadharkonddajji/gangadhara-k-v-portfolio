@@ -12,6 +12,7 @@ export const personalInfo = {
   email: "gangadhar.konddajji29@gmail.com",
   phone: "+91 7676172330",
   availability: "Open to Internship and Full Time",
+  portrait: "/portrait.jpg",
 };
 
 export const academy = {

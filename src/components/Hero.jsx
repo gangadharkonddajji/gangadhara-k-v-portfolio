@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useRef } from 'react'
+import { lazy, Suspense, useEffect, useRef, useState } from 'react'
 import gsap from 'gsap'
 import { personalInfo, heroContent } from '../data/portfolioData'
 import ScrambleText from './ScrambleText'
@@ -8,10 +8,12 @@ const HeroScene = lazy(() => import('./HeroScene'))
 
 /**
  * Signal HUD Hero Section.
- * Features dual-tone typography with decode text, lazy 3D interactive core, and HUD telemetry.
+ * Features dual-tone typography with decode text, operator portrait with HUD overlay,
+ * interactive 3D centerpiece switcher, and HUD telemetry.
  */
 export default function Hero() {
   const sectionRef = useRef(null)
+  const [activeView, setActiveView] = useState('photo')
 
   // Split name: first word is solid, remainder is outline
   const nameParts = (personalInfo.name || '').trim().split(' ')
@@ -120,21 +122,83 @@ export default function Hero() {
           </div>
         </div>
 
-        {/* Right Column: HUD Frame holding Lazy 3D Scene */}
+        {/* Right Column: HUD Frame holding Operator Portrait or 3D Scene */}
         <div data-hero="fade" className="w-full">
-          <div className="hud-frame relative border border-bone/10 bg-panel/40 h-[48vh] min-h-[320px] lg:h-[70vh] flex items-center justify-center overflow-hidden">
-            {/* Corner Metadata Overlay */}
-            <span className="absolute top-3 left-3 font-mono text-[10px] uppercase tracking-[0.25em] text-dim pointer-events-none z-10">
-              core.view — drag to rotate
-            </span>
-            <span className="absolute bottom-3 right-3 font-mono text-[10px] uppercase tracking-[0.25em] text-dim pointer-events-none z-10">
-              {personalInfo.city}
-            </span>
+          <div className="hud-frame relative border border-bone/10 bg-panel/40 h-[52vh] min-h-[380px] lg:h-[70vh] flex flex-col overflow-hidden group">
+            {/* HUD Top Control Bar */}
+            <div className="flex items-center justify-between border-b border-bone/10 px-4 py-2.5 bg-ink/80 backdrop-blur z-20 font-mono text-[10px] uppercase tracking-[0.22em]">
+              <span className="text-dim flex items-center gap-2">
+                <span className="inline-block w-1.5 h-1.5 rounded-full bg-signal animate-pulse" />
+                {activeView === 'photo' ? 'SYS // OPERATOR' : 'CORE.VIEW // 3D'}
+              </span>
 
-            {/* Lazy 3D WebGL Canvas */}
-            <Suspense fallback={null}>
-              <HeroScene />
-            </Suspense>
+              {/* View switcher tabs */}
+              <div className="flex items-center gap-1 border border-bone/15 p-0.5 bg-ink/90">
+                <button
+                  type="button"
+                  onClick={() => setActiveView('photo')}
+                  className={`px-2.5 py-1 transition-all duration-200 cursor-pointer ${
+                    activeView === 'photo'
+                      ? 'bg-signal text-ink font-semibold shadow-sm'
+                      : 'text-dim hover:text-bone'
+                  }`}
+                  aria-pressed={activeView === 'photo'}
+                >
+                  PHOTO
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveView('core')}
+                  className={`px-2.5 py-1 transition-all duration-200 cursor-pointer ${
+                    activeView === 'core'
+                      ? 'bg-signal text-ink font-semibold shadow-sm'
+                      : 'text-dim hover:text-bone'
+                  }`}
+                  aria-pressed={activeView === 'core'}
+                >
+                  3D CORE
+                </button>
+              </div>
+            </div>
+
+            {/* Frame Content Body */}
+            <div className="relative flex-1 w-full h-full overflow-hidden flex items-center justify-center">
+              {activeView === 'photo' ? (
+                <div className="relative w-full h-full">
+                  <img
+                    src={personalInfo.portrait || '/portrait.jpg'}
+                    alt="Gangadhara K V — Python Full Stack Developer, TAP Academy student"
+                    className="h-full w-full object-cover object-[center_20%] grayscale contrast-105 opacity-90 transition-all duration-700 group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-[1.02]"
+                  />
+
+                  {/* Corner Metadata Overlays */}
+                  <span className="absolute bottom-3 left-3 font-mono text-[10px] uppercase tracking-[0.25em] text-bone/70 bg-ink/80 px-2 py-1 border border-bone/10 backdrop-blur pointer-events-none z-10">
+                    ID // {personalInfo.name}
+                  </span>
+                  <span className="absolute bottom-3 right-3 font-mono text-[10px] uppercase tracking-[0.25em] text-signal bg-ink/80 px-2 py-1 border border-bone/10 backdrop-blur pointer-events-none z-10">
+                    {personalInfo.city}
+                  </span>
+
+                  {/* Scanline subtle HUD effect */}
+                  <div
+                    className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent via-signal/[0.03] to-transparent opacity-40 mix-blend-overlay"
+                    aria-hidden="true"
+                  />
+                </div>
+              ) : (
+                <div className="relative w-full h-full flex items-center justify-center">
+                  <span className="absolute bottom-3 right-3 font-mono text-[10px] uppercase tracking-[0.25em] text-dim pointer-events-none z-10">
+                    {personalInfo.city}
+                  </span>
+                  <span className="absolute bottom-3 left-3 font-mono text-[10px] uppercase tracking-[0.25em] text-dim pointer-events-none z-10">
+                    DRAG TO ROTATE
+                  </span>
+                  <Suspense fallback={null}>
+                    <HeroScene />
+                  </Suspense>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
