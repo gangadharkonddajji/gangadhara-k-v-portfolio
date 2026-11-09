@@ -76,6 +76,7 @@ export const projects = [
     year: "2026",
     liveUrl: "",
     githubUrl: "https://github.com/gangadharkonddajji",
+    image: "/engineering-calculator.png",
   },
 ];
 

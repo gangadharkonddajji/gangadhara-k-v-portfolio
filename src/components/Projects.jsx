@@ -17,11 +17,11 @@ const projectImages = import.meta.glob('../assets/projects/*.(png|jpg|jpeg|webp|
  * Displays project cover with hover zoom/color shift, tags, and action links.
  */
 function ProjectCard({ project }) {
-  // Find matching image by project id (e.g. 'project-1' -> '../assets/projects/project-1.png')
+  // Find matching image by project id or explicit image field
   const matchedEntry = Object.entries(projectImages).find(([path]) =>
     path.includes(`/${project.id}.`)
   )
-  const coverSrc = matchedEntry ? matchedEntry[1] : null
+  const coverSrc = project.image || (matchedEntry ? matchedEntry[1] : null)
 
   return (
     <article

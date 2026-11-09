@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useRef, useState } from 'react'
+import { lazy, Suspense, useEffect, useRef } from 'react'
 import gsap from 'gsap'
 import { personalInfo, heroContent } from '../data/portfolioData'
 import ScrambleText from './ScrambleText'
@@ -8,12 +8,11 @@ const HeroScene = lazy(() => import('./HeroScene'))
 
 /**
  * Signal HUD Hero Section.
- * Features dual-tone typography with decode text, operator portrait with HUD overlay,
- * interactive 3D centerpiece switcher, and HUD telemetry.
+ * Features dual-tone typography with decode text, operator portrait with rounded corners,
+ * interactive 3D centerpiece, and HUD telemetry.
  */
 export default function Hero() {
   const sectionRef = useRef(null)
-  const [activeView, setActiveView] = useState('photo')
 
   // Split name: first word is solid, remainder is outline
   const nameParts = (personalInfo.name || '').trim().split(' ')
@@ -60,8 +59,8 @@ export default function Hero() {
       className="hud-grid relative min-h-screen flex flex-col justify-between overflow-hidden px-5 md:px-10 pt-24 pb-10"
     >
       {/* Main Grid Container */}
-      <div className="w-full max-w-[1440px] mx-auto my-auto grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] items-center gap-10 lg:gap-14">
-        {/* Left Column: Typography, Details, and CTAs */}
+      <div className="w-full max-w-[1440px] mx-auto my-auto grid grid-cols-1 lg:grid-cols-[1.15fr_0.85fr] items-center gap-10 lg:gap-14">
+        {/* Left Column: Typography, Portrait, Narrative, and CTAs */}
         <div className="flex flex-col gap-6">
           {/* Eyebrow */}
           <div data-hero="fade">
@@ -82,6 +81,24 @@ export default function Hero() {
               <ScrambleText text={restWords} trigger="mount" delay={500} />
             </span>
           </h1>
+
+          {/* Real Portrait Photo with Rounded Corners just below name */}
+          <div data-hero="fade" className="flex items-center gap-4 pt-1">
+            <div className="relative w-36 h-44 sm:w-44 sm:h-52 md:w-52 md:h-60 rounded-2xl overflow-hidden border border-bone/25 bg-panel/80 shadow-2xl group shrink-0">
+              <img
+                src={personalInfo.portrait || '/portrait.jpg'}
+                alt={personalInfo.name}
+                className="w-full h-full object-cover object-[center_20%] transition-transform duration-700 ease-out group-hover:scale-105"
+              />
+              <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-white/10 pointer-events-none" />
+              <div className="absolute bottom-2.5 left-2.5 flex items-center gap-1.5 bg-ink/85 backdrop-blur px-2.5 py-1 rounded-md border border-bone/15 pointer-events-none">
+                <span className="h-1.5 w-1.5 rounded-full bg-signal animate-pulse" />
+                <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-bone font-medium">
+                  {personalInfo.name}
+                </span>
+              </div>
+            </div>
+          </div>
 
           {/* Animated Divider */}
           <div
@@ -122,83 +139,21 @@ export default function Hero() {
           </div>
         </div>
 
-        {/* Right Column: HUD Frame holding Operator Portrait or 3D Scene */}
+        {/* Right Column: HUD Frame holding 3D Centerpiece */}
         <div data-hero="fade" className="w-full">
-          <div className="hud-frame relative border border-bone/10 bg-panel/40 h-[52vh] min-h-[380px] lg:h-[70vh] flex flex-col overflow-hidden group">
-            {/* HUD Top Control Bar */}
-            <div className="flex items-center justify-between border-b border-bone/10 px-4 py-2.5 bg-ink/80 backdrop-blur z-20 font-mono text-[10px] uppercase tracking-[0.22em]">
-              <span className="text-dim flex items-center gap-2">
-                <span className="inline-block w-1.5 h-1.5 rounded-full bg-signal animate-pulse" />
-                {activeView === 'photo' ? 'SYS // OPERATOR' : 'CORE.VIEW // 3D'}
-              </span>
+          <div className="hud-frame relative border border-bone/10 bg-panel/40 h-[48vh] min-h-[340px] lg:h-[70vh] flex items-center justify-center overflow-hidden">
+            {/* Corner Metadata Overlay */}
+            <span className="absolute top-3 left-3 font-mono text-[10px] uppercase tracking-[0.25em] text-dim pointer-events-none z-10">
+              core.view — drag to rotate
+            </span>
+            <span className="absolute bottom-3 right-3 font-mono text-[10px] uppercase tracking-[0.25em] text-dim pointer-events-none z-10">
+              {personalInfo.city}
+            </span>
 
-              {/* View switcher tabs */}
-              <div className="flex items-center gap-1 border border-bone/15 p-0.5 bg-ink/90">
-                <button
-                  type="button"
-                  onClick={() => setActiveView('photo')}
-                  className={`px-2.5 py-1 transition-all duration-200 cursor-pointer ${
-                    activeView === 'photo'
-                      ? 'bg-signal text-ink font-semibold shadow-sm'
-                      : 'text-dim hover:text-bone'
-                  }`}
-                  aria-pressed={activeView === 'photo'}
-                >
-                  PHOTO
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setActiveView('core')}
-                  className={`px-2.5 py-1 transition-all duration-200 cursor-pointer ${
-                    activeView === 'core'
-                      ? 'bg-signal text-ink font-semibold shadow-sm'
-                      : 'text-dim hover:text-bone'
-                  }`}
-                  aria-pressed={activeView === 'core'}
-                >
-                  3D CORE
-                </button>
-              </div>
-            </div>
-
-            {/* Frame Content Body */}
-            <div className="relative flex-1 w-full h-full overflow-hidden flex items-center justify-center">
-              {activeView === 'photo' ? (
-                <div className="relative w-full h-full">
-                  <img
-                    src={personalInfo.portrait || '/portrait.jpg'}
-                    alt="Gangadhara K V — Python Full Stack Developer, TAP Academy student"
-                    className="h-full w-full object-cover object-[center_20%] grayscale contrast-105 opacity-90 transition-all duration-700 group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-[1.02]"
-                  />
-
-                  {/* Corner Metadata Overlays */}
-                  <span className="absolute bottom-3 left-3 font-mono text-[10px] uppercase tracking-[0.25em] text-bone/70 bg-ink/80 px-2 py-1 border border-bone/10 backdrop-blur pointer-events-none z-10">
-                    ID // {personalInfo.name}
-                  </span>
-                  <span className="absolute bottom-3 right-3 font-mono text-[10px] uppercase tracking-[0.25em] text-signal bg-ink/80 px-2 py-1 border border-bone/10 backdrop-blur pointer-events-none z-10">
-                    {personalInfo.city}
-                  </span>
-
-                  {/* Scanline subtle HUD effect */}
-                  <div
-                    className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent via-signal/[0.03] to-transparent opacity-40 mix-blend-overlay"
-                    aria-hidden="true"
-                  />
-                </div>
-              ) : (
-                <div className="relative w-full h-full flex items-center justify-center">
-                  <span className="absolute bottom-3 right-3 font-mono text-[10px] uppercase tracking-[0.25em] text-dim pointer-events-none z-10">
-                    {personalInfo.city}
-                  </span>
-                  <span className="absolute bottom-3 left-3 font-mono text-[10px] uppercase tracking-[0.25em] text-dim pointer-events-none z-10">
-                    DRAG TO ROTATE
-                  </span>
-                  <Suspense fallback={null}>
-                    <HeroScene />
-                  </Suspense>
-                </div>
-              )}
-            </div>
+            {/* Lazy 3D WebGL Canvas */}
+            <Suspense fallback={null}>
+              <HeroScene />
+            </Suspense>
           </div>
         </div>
       </div>

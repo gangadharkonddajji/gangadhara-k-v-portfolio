@@ -6,19 +6,12 @@ import ScrambleText from './ScrambleText'
 
 gsap.registerPlugin(ScrollTrigger)
 
-// Eagerly resolve portrait image assets
-const aboutImages = import.meta.glob('../assets/about/*.(png|jpg|jpeg|webp)', {
-  eager: true,
-  import: 'default',
-})
-
 /**
- * About Section.
- * Presents candidate portrait, numerical achievements counter, narrative journey, and skill matrix.
+ * About Section (Engineering Mindset).
+ * Presents engineering mindset artwork, numerical achievements counter, narrative journey, and skill matrix.
  */
 export default function About() {
   const sectionRef = useRef(null)
-  const portraitSrc = Object.values(aboutImages)[0] || null
 
   useEffect(() => {
     const section = sectionRef.current
@@ -84,26 +77,20 @@ export default function About() {
       <div className="mx-auto grid max-w-[1440px] grid-cols-1 items-start gap-12 lg:grid-cols-12 lg:gap-16">
         {/* Left Column: Portrait & Numerical Stats (5 cols) */}
         <div data-about="fade" className="flex flex-col gap-6 lg:col-span-5">
-          {/* Portrait in HUD frame */}
-          <div className="hud-frame relative aspect-[4/5] w-full overflow-hidden border border-bone/10 bg-panel/40">
-            <span className="absolute top-3 left-3 z-10 font-mono text-[10px] uppercase tracking-[0.25em] text-dim pointer-events-none">
-              IMG // PORTRAIT
+          {/* Engineering Mindset Artwork in HUD frame */}
+          <div className="hud-frame relative aspect-[16/10] sm:aspect-[16/9] lg:aspect-[16/11] w-full overflow-hidden border border-bone/10 bg-panel/40 group">
+            <span className="absolute top-3 left-3 z-10 font-mono text-[10px] uppercase tracking-[0.25em] text-dim pointer-events-none bg-ink/80 px-2 py-0.5 border border-bone/10 backdrop-blur">
+              IMG // ENGINEERING MINDSET
             </span>
-            <span className="absolute bottom-3 right-3 z-10 font-mono text-[10px] uppercase tracking-[0.25em] text-dim pointer-events-none">
-              SYS // 01
+            <span className="absolute bottom-3 right-3 z-10 font-mono text-[10px] uppercase tracking-[0.25em] text-signal pointer-events-none bg-ink/80 px-2 py-0.5 border border-bone/10 backdrop-blur">
+              PYTHON + MECH
             </span>
 
-            {portraitSrc ? (
-              <img
-                src={portraitSrc}
-                alt="Gangadhara K V — Python Full Stack Developer, TAP Academy student"
-                className="h-full w-full object-cover grayscale opacity-90 transition-all duration-700 hover:grayscale-0 hover:opacity-100 hover:scale-[1.02]"
-              />
-            ) : (
-              <div className="hud-grid flex h-full w-full items-center justify-center font-mono text-xs uppercase tracking-[0.2em] text-dim">
-                PORTRAIT // NO SIGNAL
-              </div>
-            )}
+            <img
+              src="/engineer-mindset.png"
+              alt="Gangadhara K V — Python Full Stack Developer, TAP Academy student"
+              className="h-full w-full object-cover transition-all duration-700 ease-out group-hover:scale-[1.03]"
+            />
           </div>
 
           {/* Stats Cards Grid */}
