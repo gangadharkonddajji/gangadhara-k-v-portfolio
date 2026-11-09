@@ -58,10 +58,10 @@ export default function Hero() {
       ref={sectionRef}
       className="hud-grid relative min-h-screen flex flex-col justify-between overflow-hidden px-5 md:px-10 pt-24 pb-10"
     >
-      {/* Main Grid Container */}
-      <div className="w-full max-w-[1440px] mx-auto my-auto grid grid-cols-1 lg:grid-cols-[1.15fr_0.85fr] items-center gap-10 lg:gap-14">
-        {/* Left Column: Typography, Portrait, Narrative, and CTAs */}
-        <div className="flex flex-col gap-6">
+      {/* Main Grid Container — On mobile: 3D sphere + photo first (order-1), then name & buttons (order-2) */}
+      <div className="w-full max-w-[1440px] mx-auto my-auto grid grid-cols-1 lg:grid-cols-[1.15fr_0.85fr] items-center gap-8 lg:gap-14">
+        {/* Left Column: Typography, Narrative, and CTAs (directly under name with no empty gap) */}
+        <div className="flex flex-col gap-6 order-2 lg:order-1 text-left">
           {/* Eyebrow */}
           <div data-hero="fade">
             <span className="font-mono text-xs uppercase tracking-[0.3em] text-signal font-semibold">
@@ -82,33 +82,15 @@ export default function Hero() {
             </span>
           </h1>
 
-          {/* Real Portrait Photo with Rounded Corners just below name */}
-          <div data-hero="fade" className="flex items-center gap-4 pt-1">
-            <div className="relative w-36 h-44 sm:w-44 sm:h-52 md:w-52 md:h-60 rounded-2xl overflow-hidden border border-bone/25 bg-panel/80 shadow-2xl group shrink-0">
-              <img
-                src={personalInfo.portrait || '/portrait.jpg'}
-                alt={personalInfo.name}
-                className="w-full h-full object-cover object-[center_20%] transition-transform duration-700 ease-out group-hover:scale-105"
-              />
-              <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-white/10 pointer-events-none" />
-              <div className="absolute bottom-2.5 left-2.5 flex items-center gap-1.5 bg-ink/85 backdrop-blur px-2.5 py-1 rounded-md border border-bone/15 pointer-events-none">
-                <span className="h-1.5 w-1.5 rounded-full bg-signal animate-pulse" />
-                <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-bone font-medium">
-                  {personalInfo.name}
-                </span>
-              </div>
-            </div>
-          </div>
-
           {/* Animated Divider */}
           <div
             data-hero="divider"
             className="h-px w-full max-w-xl bg-bone/25 origin-left"
           />
 
-          {/* Role & Intro Narrative */}
+          {/* Role & Intro Narrative — directly under name & divider */}
           <div data-hero="fade" className="flex flex-col gap-2 max-w-xl">
-            <span className="font-mono text-xs uppercase tracking-[0.25em] text-dim font-medium">
+            <span className="font-mono text-xs uppercase tracking-[0.25em] text-signal font-semibold">
               {personalInfo.role}
             </span>
             <p className="text-lg md:text-xl text-bone/85 leading-relaxed">
@@ -139,10 +121,10 @@ export default function Hero() {
           </div>
         </div>
 
-        {/* Right Column: HUD Frame holding 3D Centerpiece */}
-        <div data-hero="fade" className="w-full">
-          <div className="hud-frame relative border border-bone/10 bg-panel/40 h-[50vh] min-h-[380px] lg:h-[70vh] flex items-center justify-center overflow-hidden">
-            {/* Lazy 3D WebGL Canvas */}
+        {/* Right Column: Rotating 3D Sphere with central portrait & orbiting skills (order-1 on mobile) */}
+        <div data-hero="fade" className="w-full order-1 lg:order-2 flex justify-center">
+          <div className="hud-frame relative border border-bone/10 bg-panel/40 w-full h-[450px] sm:h-[520px] lg:h-[680px] flex items-center justify-center overflow-hidden">
+            {/* Lazy 3D WebGL Canvas + Central Portrait + Orbiting Skills */}
             <Suspense fallback={null}>
               <HeroScene />
             </Suspense>

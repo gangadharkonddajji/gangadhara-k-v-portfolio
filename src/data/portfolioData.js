@@ -42,6 +42,14 @@ export const heroContent = {
     "Engineering Meets Software",
     "Turning Logic Into Solutions",
   ],
+  orbitSkills: [
+    "Python",
+    "SQL",
+    "JavaScript",
+    "HTML/CSS",
+    "MySQL",
+    "Git",
+  ],
   ctaPrimary: { label: "View projects", href: "#projects" },
   ctaSecondary: { label: "Get in touch", href: "#contact" },
 };

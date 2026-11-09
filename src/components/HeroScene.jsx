@@ -1,151 +1,126 @@
 import { useEffect, useRef } from 'react'
 import * as THREE from 'three'
+import { heroContent, personalInfo } from '../data/portfolioData'
 
 /**
- * Enhanced 3D Signal Core centerpiece rendered with Three.js.
+ * Large Portal 3D Signal Sphere with Integrated Portrait & Orbiting Skills.
  * Features:
- * - Multi-layer kinetic icosahedron & inner dodecahedron with glowing vertex nodes
- * - Triple gyroscopic orbital rings with counter-rotation
- * - Ambient floating data particle swarm
- * - Kinetic drag physics with momentum & inertia
- * - Live HUD telemetry readouts (Pitch, Yaw, Velocity)
- * - Interactive Boost Spin & Recenter controls
+ * - Portrait photo fills the entire circle out to the edges (face centered with shoulders visible)
+ * - Rotating orange 3D wireframe sphere rendered directly over the portrait as an overlay
+ * - Radial transparency mask softens wireframe over the face so features remain crystal clear
+ * - Thin glowing orange ring around the circular perimeter
+ * - Large, high-contrast, sharp skill labels orbiting outside the sphere
+ * - Kinetic drag-to-rotate with smooth inertia physics
+ * - ⚡ BOOST and ↺ RESET action controls
+ * - Proportional scaling and lightweight animation mode on mobile devices
  */
 export default function HeroScene() {
-  const containerRef = useRef(null)
+  const sphereContainerRef = useRef(null)
+  const canvasRef = useRef(null)
   const pitchRef = useRef(null)
   const yawRef = useRef(null)
   const stateRef = useRef(null)
   const boostActionRef = useRef(null)
   const resetActionRef = useRef(null)
+  const skillRefs = useRef([])
+
+  const skills = heroContent.orbitSkills || [
+    'Python',
+    'SQL',
+    'JavaScript',
+    'HTML/CSS',
+    'MySQL',
+    'Git',
+  ]
 
   useEffect(() => {
-    const container = containerRef.current
-    if (!container) return
+    const canvasWrap = canvasRef.current
+    if (!canvasWrap) return
 
-    // 1. Detect reduced motion preference
+    // 1. Detect reduced motion preference & mobile screen width
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const isMobile = window.innerWidth < 768
 
-    // 2. Scene setup
+    // 2. Three.js Scene Setup
     const scene = new THREE.Scene()
-    const width = container.clientWidth || 300
-    const height = container.clientHeight || 300
+    const width = canvasWrap.clientWidth || 300
+    const height = canvasWrap.clientHeight || 300
 
-    const camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 100)
-    camera.position.z = 7
+    const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 100)
+    camera.position.z = 5.3
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true })
+    const renderer = new THREE.WebGLRenderer({ antialias: !isMobile, alpha: true })
     renderer.setSize(width, height, false)
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-    container.appendChild(renderer.domElement)
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile ? 1.5 : 2))
+    canvasWrap.appendChild(renderer.domElement)
 
     renderer.domElement.style.width = '100%'
     renderer.domElement.style.height = '100%'
     renderer.domElement.style.display = 'block'
 
-    // 3. Signal Core Master Group
+    // 3. 3D Wireframe Sphere Group
     const group = new THREE.Group()
     scene.add(group)
 
-    // (1) Outer Shell: Edges of Icosahedron in signal orange (0xff5b1f)
-    const outerIcosaGeom = new THREE.IcosahedronGeometry(1.9, 1)
-    const edgesGeom = new THREE.EdgesGeometry(outerIcosaGeom)
+    // (1) Primary Orange Wireframe Sphere (Icosahedron calibrated to touch sphere boundary)
+    const sphereRadius = 1.9
+    const icosaGeom = new THREE.IcosahedronGeometry(sphereRadius, 1)
+    const edgesGeom = new THREE.EdgesGeometry(icosaGeom)
     const outerMaterial = new THREE.LineBasicMaterial({
       color: 0xff5b1f,
       transparent: true,
-      opacity: prefersReducedMotion ? 0.9 : 0.85,
+      opacity: prefersReducedMotion ? 0.7 : 0.6,
+      linewidth: 1.5,
     })
-    const outerShell = new THREE.LineSegments(edgesGeom, outerMaterial)
-    group.add(outerShell)
+    const outerWireframe = new THREE.LineSegments(edgesGeom, outerMaterial)
+    group.add(outerWireframe)
 
-    // (2) Outer Shell Vertices: Glowing orange node beads
-    const vertexPointsGeom = new THREE.IcosahedronGeometry(1.9, 1)
-    const vertexPointsMat = new THREE.PointsMaterial({
+    // (2) Glowing Orange Node Beads at the 12 icosahedron vertices
+    const pointsGeom = new THREE.IcosahedronGeometry(sphereRadius, 1)
+    const pointsMat = new THREE.PointsMaterial({
       color: 0xff5b1f,
-      size: 0.08,
+      size: isMobile ? 0.08 : 0.1,
       transparent: true,
-      opacity: 0.9,
+      opacity: 0.95,
     })
-    const vertexPoints = new THREE.Points(vertexPointsGeom, vertexPointsMat)
+    const vertexPoints = new THREE.Points(pointsGeom, pointsMat)
     group.add(vertexPoints)
 
-    // (3) Mid Cage: Inner Dodecahedron wireframe in bone (0xe8e6df)
-    const midDodecaGeom = new THREE.DodecahedronGeometry(1.4, 0)
-    const midEdgesGeom = new THREE.EdgesGeometry(midDodecaGeom)
-    const midMaterial = new THREE.LineBasicMaterial({
-      color: 0xe8e6df,
-      transparent: true,
-      opacity: 0.35,
-    })
-    const midCage = new THREE.LineSegments(midEdgesGeom, midMaterial)
-    group.add(midCage)
-
-    // (4) Inner Quantum Core: Dense particle point cloud in bone
-    const innerGeom = new THREE.IcosahedronGeometry(1.1, 3)
-    const innerMaterial = new THREE.PointsMaterial({
-      color: 0xe8e6df,
-      size: 0.03,
-      transparent: true,
-      opacity: 0.8,
-    })
-    const innerCore = new THREE.Points(innerGeom, innerMaterial)
-    group.add(innerCore)
-
-    // (5) Gyroscopic Orbit Ring 1: Signal Orange, tilted at PI / 2.4
-    const curve1 = new THREE.EllipseCurve(0, 0, 2.6, 2.6, 0, 2 * Math.PI, false, 0)
-    const ring1Geom = new THREE.BufferGeometry().setFromPoints(curve1.getPoints(96))
-    const ring1Material = new THREE.LineBasicMaterial({
+    // (3) Subtle Gyroscopic Ring Tilted in Orange
+    const curve = new THREE.EllipseCurve(0, 0, sphereRadius * 1.05, sphereRadius * 1.05, 0, 2 * Math.PI, false, 0)
+    const ringGeom = new THREE.BufferGeometry().setFromPoints(curve.getPoints(96))
+    const ringMaterial = new THREE.LineBasicMaterial({
       color: 0xff5b1f,
       transparent: true,
       opacity: 0.35,
     })
-    const orbitRing1 = new THREE.LineLoop(ring1Geom, ring1Material)
-    orbitRing1.rotation.x = Math.PI / 2.4
-    group.add(orbitRing1)
+    const gyroRing = new THREE.LineLoop(ringGeom, ringMaterial)
+    gyroRing.rotation.x = Math.PI / 2.35
+    group.add(gyroRing)
 
-    // (6) Gyroscopic Orbit Ring 2: Bone / Cyan tint, tilted at -PI / 3.2
-    const curve2 = new THREE.EllipseCurve(0, 0, 2.85, 2.85, 0, 2 * Math.PI, false, 0)
-    const ring2Geom = new THREE.BufferGeometry().setFromPoints(curve2.getPoints(96))
-    const ring2Material = new THREE.LineBasicMaterial({
-      color: 0xe8e6df,
-      transparent: true,
-      opacity: 0.22,
-    })
-    const orbitRing2 = new THREE.LineLoop(ring2Geom, ring2Material)
-    orbitRing2.rotation.y = -Math.PI / 3.2
-    orbitRing2.rotation.z = Math.PI / 6
-    group.add(orbitRing2)
-
-    // (7) Ambient Data Swarm (160 floating orbital particles)
-    const swarmCount = 160
-    const swarmPositions = new Float32Array(swarmCount * 3)
-    for (let i = 0; i < swarmCount; i++) {
-      const radius = 2.2 + Math.random() * 1.6
+    // (4) Ambient Micro-Particles
+    const particleCount = isMobile ? 50 : 90
+    const positions = new Float32Array(particleCount * 3)
+    for (let i = 0; i < particleCount; i++) {
+      const r = sphereRadius * (0.85 + Math.random() * 0.35)
       const theta = Math.random() * Math.PI * 2
       const phi = Math.acos(2 * Math.random() - 1)
-      swarmPositions[i * 3] = radius * Math.sin(phi) * Math.cos(theta)
-      swarmPositions[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta)
-      swarmPositions[i * 3 + 2] = radius * Math.cos(phi)
+      positions[i * 3] = r * Math.sin(phi) * Math.cos(theta)
+      positions[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta)
+      positions[i * 3 + 2] = r * Math.cos(phi)
     }
     const swarmGeom = new THREE.BufferGeometry()
-    swarmGeom.setAttribute('position', new THREE.BufferAttribute(swarmPositions, 3))
+    swarmGeom.setAttribute('position', new THREE.BufferAttribute(positions, 3))
     const swarmMaterial = new THREE.PointsMaterial({
       color: 0xe8e6df,
-      size: 0.022,
+      size: 0.025,
       transparent: true,
       opacity: 0.45,
     })
     const swarm = new THREE.Points(swarmGeom, swarmMaterial)
-    scene.add(swarm)
+    group.add(swarm)
 
-    // Initial scale for intro materialisation
-    if (prefersReducedMotion) {
-      group.scale.set(1, 1, 1)
-    } else {
-      group.scale.set(0.6, 0.6, 0.6)
-    }
-
-    // 4. Kinetic Drag & Interaction State
+    // 4. Kinetic Drag & Momentum Physics
     let targetTiltX = 0
     let targetTiltY = 0
     let currentRotX = 0
@@ -160,11 +135,13 @@ export default function HeroScene() {
     let prevPointerX = 0
     let prevPointerY = 0
 
-    const handleWindowPointerMove = (e) => {
+    const sphereWrap = sphereContainerRef.current
+
+    const handlePointerMove = (e) => {
       const normX = (e.clientX / window.innerWidth) * 2 - 1
       const normY = (e.clientY / window.innerHeight) * 2 - 1
-      targetTiltY = normX * 0.35
-      targetTiltX = normY * 0.22
+      targetTiltY = normX * 0.25
+      targetTiltX = normY * 0.18
 
       if (isDragging) {
         const deltaX = e.clientX - prevPointerX
@@ -180,14 +157,14 @@ export default function HeroScene() {
       }
     }
 
-    const handleCanvasPointerDown = (e) => {
+    const handlePointerDown = (e) => {
       isDragging = true
       prevPointerX = e.clientX
       prevPointerY = e.clientY
       velX = 0
       velY = 0
       if (stateRef.current) {
-        stateRef.current.textContent = 'INTERACTION // DRAGGING'
+        stateRef.current.textContent = 'CORE.STATUS // DRAGGING'
         stateRef.current.classList.add('text-signal')
       }
     }
@@ -196,24 +173,26 @@ export default function HeroScene() {
       if (isDragging) {
         isDragging = false
         if (stateRef.current) {
-          stateRef.current.textContent = 'CORE.STATUS // ACTIVE'
+          stateRef.current.textContent = 'CORE.STATUS // ORBITING'
           stateRef.current.classList.remove('text-signal')
         }
       }
     }
 
-    window.addEventListener('pointermove', handleWindowPointerMove, { passive: true })
-    container.addEventListener('pointerdown', handleCanvasPointerDown)
+    window.addEventListener('pointermove', handlePointerMove, { passive: true })
+    if (sphereWrap) {
+      sphereWrap.addEventListener('pointerdown', handlePointerDown)
+    }
     window.addEventListener('pointerup', handlePointerUp)
     window.addEventListener('pointercancel', handlePointerUp)
 
-    // Action handlers for Boost and Recenter buttons
+    // Controls: Boost & Recenter
     boostActionRef.current = () => {
-      velY += 0.12
+      velY += 0.15
       if (stateRef.current) {
-        stateRef.current.textContent = 'BOOST // KINETIC BURST'
+        stateRef.current.textContent = 'BURST // ACCELERATED'
         setTimeout(() => {
-          if (stateRef.current) stateRef.current.textContent = 'CORE.STATUS // ACTIVE'
+          if (stateRef.current) stateRef.current.textContent = 'CORE.STATUS // ORBITING'
         }, 1200)
       }
     }
@@ -226,12 +205,12 @@ export default function HeroScene() {
       if (stateRef.current) {
         stateRef.current.textContent = 'CORE // RECENTERED'
         setTimeout(() => {
-          if (stateRef.current) stateRef.current.textContent = 'CORE.STATUS // ACTIVE'
+          if (stateRef.current) stateRef.current.textContent = 'CORE.STATUS // ORBITING'
         }, 1000)
       }
     }
 
-    // 5. Visibility observer to pause rendering when off-screen
+    // 5. Observer for visibility pause
     let isVisible = true
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -239,23 +218,21 @@ export default function HeroScene() {
       },
       { threshold: 0.05 }
     )
-    observer.observe(container)
+    if (sphereWrap) observer.observe(sphereWrap)
 
-    // 6. Window resize handler
+    // 6. Resize handler
     const handleResize = () => {
-      if (!container) return
-      const w = container.clientWidth
-      const h = container.clientHeight
-      camera.aspect = w / h
+      if (!canvasWrap) return
+      const size = canvasWrap.clientWidth || 300
+      camera.aspect = 1
       camera.updateProjectionMatrix()
-      renderer.setSize(w, h, false)
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+      renderer.setSize(size, size, false)
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile ? 1.5 : 2))
     }
     window.addEventListener('resize', handleResize)
 
-    // 7. Animation loop with Kinetic Momentum
+    // 7. Animation Loop
     const clock = new THREE.Clock()
-    const startTime = performance.now()
     let animationFrameId = null
     let lastTelemetryUpdate = 0
 
@@ -267,20 +244,12 @@ export default function HeroScene() {
       const elapsedTime = clock.getElapsedTime()
       const now = performance.now()
 
-      // Materialisation intro
+      // Auto spin
       if (!prefersReducedMotion) {
-        const progress = Math.min((now - startTime) / 1000, 1)
-        const easeOut = 1 - Math.pow(1 - progress, 3)
-
-        const currentScale = 0.6 + 0.4 * easeOut
-        group.scale.set(currentScale, currentScale, currentScale)
-        outerMaterial.opacity = 0.85 * easeOut
-
-        // Gentle auto spin
-        autoSpinY += 0.003
+        autoSpinY += isMobile ? 0.002 : 0.0035
       }
 
-      // Kinetic Inertia when released
+      // Kinetic Inertia
       if (!isDragging) {
         dragRotX += velX
         dragRotY += velY
@@ -288,19 +257,10 @@ export default function HeroScene() {
         velY *= 0.94
       }
 
-      // Inner elements counter-rotation & breathing pulse
-      innerCore.rotation.y = -elapsedTime * 0.22
-      midCage.rotation.x = elapsedTime * 0.12
-      midCage.rotation.z = -elapsedTime * 0.08
-      orbitRing1.rotation.z = elapsedTime * 0.25
-      orbitRing2.rotation.z = -elapsedTime * 0.18
-      swarm.rotation.y = elapsedTime * 0.04
+      // Gyro ring spin
+      gyroRing.rotation.z = elapsedTime * 0.22
 
-      // Gentle quantum breathing pulse
-      const pulse = 1 + Math.sin(elapsedTime * 2.4) * 0.05
-      innerCore.scale.set(pulse, pulse, pulse)
-
-      // Group eases toward target rotation
+      // Ease rotation toward target
       const targetX = targetTiltX + dragRotX
       const targetY = targetTiltY + dragRotY + autoSpinY
 
@@ -310,7 +270,31 @@ export default function HeroScene() {
       group.rotation.x = currentRotX
       group.rotation.y = currentRotY
 
-      // Update HUD telemetry DOM readouts (throttled to ~15fps for performance)
+      // Orbit Skill Labels around outside the sphere
+      const sphereDiameter = sphereWrap ? sphereWrap.clientWidth : 300
+      const radiusX = sphereDiameter * 0.5 + (isMobile ? 32 : 55)
+      const radiusY = radiusX * 0.46
+      const orbitSpeed = isMobile ? 0.2 : 0.35
+      const orbitBaseAngle = (prefersReducedMotion ? 0 : elapsedTime * orbitSpeed) + currentRotY
+
+      skillRefs.current.forEach((el, idx) => {
+        if (!el) return
+        const angle = orbitBaseAngle + (idx / skills.length) * (2 * Math.PI)
+        const x = Math.cos(angle) * radiusX
+        const y = Math.sin(angle) * radiusY
+        const z = Math.sin(angle)
+
+        // Front vs back depth
+        const scale = z > 0 ? 0.96 + z * 0.12 : 0.82 + (z + 1) * 0.08
+        const opacity = z > 0 ? 1 : 0.4
+        const zIndex = z > 0 ? 30 : 5
+
+        el.style.transform = `translate3d(calc(-50% + ${x}px), calc(-50% + ${y}px), 0) scale(${scale})`
+        el.style.opacity = `${opacity}`
+        el.style.zIndex = `${zIndex}`
+      })
+
+      // Telemetry update at ~15fps
       if (now - lastTelemetryUpdate > 65) {
         lastTelemetryUpdate = now
         const degX = Math.round(((currentRotX * 180) / Math.PI) % 360)
@@ -324,87 +308,109 @@ export default function HeroScene() {
 
     animate()
 
-    // 8. Cleanup on unmount
+    // 8. Cleanup
     return () => {
       if (animationFrameId) {
         cancelAnimationFrame(animationFrameId)
       }
 
       observer.disconnect()
-      window.removeEventListener('pointermove', handleWindowPointerMove)
-      container.removeEventListener('pointerdown', handleCanvasPointerDown)
+      window.removeEventListener('pointermove', handlePointerMove)
+      if (sphereWrap) {
+        sphereWrap.removeEventListener('pointerdown', handlePointerDown)
+      }
       window.removeEventListener('pointerup', handlePointerUp)
       window.removeEventListener('pointercancel', handlePointerUp)
       window.removeEventListener('resize', handleResize)
 
-      // Dispose all geometries
+      icosaGeom.dispose()
       edgesGeom.dispose()
-      outerIcosaGeom.dispose()
-      vertexPointsGeom.dispose()
-      midDodecaGeom.dispose()
-      midEdgesGeom.dispose()
-      innerGeom.dispose()
-      ring1Geom.dispose()
-      ring2Geom.dispose()
+      pointsGeom.dispose()
+      ringGeom.dispose()
       swarmGeom.dispose()
 
-      // Dispose materials
       outerMaterial.dispose()
-      vertexPointsMat.dispose()
-      midMaterial.dispose()
-      innerMaterial.dispose()
-      ring1Material.dispose()
-      ring2Material.dispose()
+      pointsMat.dispose()
+      ringMaterial.dispose()
       swarmMaterial.dispose()
 
-      // Dispose renderer
       renderer.dispose()
       renderer.forceContextLoss()
       if (renderer.domElement && renderer.domElement.parentNode) {
         renderer.domElement.parentNode.removeChild(renderer.domElement)
       }
     }
-  }, [])
+  }, [skills])
 
   return (
-    <div className="relative h-full w-full select-none overflow-hidden group/core">
-      {/* Three.js Canvas Container */}
+    <div className="relative h-full w-full select-none overflow-hidden flex items-center justify-center group/core p-4 sm:p-6">
+      
+      {/* 1. Large Portal Sphere & Portrait Unit */}
       <div
-        ref={containerRef}
-        role="img"
-        aria-label="Interactive 3D Core — Drag and turn to inspect"
-        data-cursor="hot"
-        className="relative h-full w-full cursor-grab active:cursor-grabbing"
-      />
-
-      {/* Holographic Tactical Crosshairs Overlay */}
-      <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-        {/* Subtle circular reticle */}
-        <div className="w-52 h-52 sm:w-64 sm:h-64 rounded-full border border-bone/[0.07] border-dashed animate-[spin_60s_linear_infinite]" />
-        <div className="absolute w-36 h-36 rounded-full border border-bone/[0.04]" />
-        {/* Center Target Mark */}
-        <div className="absolute text-bone/20 font-mono text-xs pointer-events-none">
-          +
+        ref={sphereContainerRef}
+        className="relative w-[270px] h-[270px] sm:w-[350px] sm:h-[350px] lg:w-[440px] lg:h-[440px] rounded-full flex items-center justify-center shrink-0 cursor-grab active:cursor-grabbing select-none"
+      >
+        {/* Layer 1: Real Portrait Photo filling the entire circular area */}
+        <div className="absolute inset-0 rounded-full overflow-hidden bg-ink shadow-2xl">
+          <img
+            src={personalInfo.portrait || '/portrait.jpg'}
+            alt="Gangadhara K V"
+            className="w-full h-full object-cover object-[center_16%] select-none scale-[1.03]"
+          />
         </div>
+
+        {/* Layer 2: 3D Rotating Orange Wireframe Sphere (Overlay with soft radial mask over face) */}
+        <div
+          ref={canvasRef}
+          role="img"
+          aria-label="Rotating 3D wireframe sphere overlaying portrait — drag to rotate"
+          className="absolute inset-0 rounded-full overflow-hidden pointer-events-none z-10"
+          style={{
+            maskImage:
+              'radial-gradient(circle at center, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.38) 45%, rgba(0,0,0,0.85) 75%, black 100%)',
+            WebkitMaskImage:
+              'radial-gradient(circle at center, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.38) 45%, rgba(0,0,0,0.85) 75%, black 100%)',
+          }}
+        />
+
+        {/* Layer 3: Thin Glowing Orange Ring around circular edge */}
+        <div
+          className="pointer-events-none absolute inset-0 rounded-full border-2 border-signal shadow-[0_0_30px_rgba(255,91,31,0.55),inset_0_0_15px_rgba(255,91,31,0.25)] ring-1 ring-signal/30 z-20"
+          aria-hidden="true"
+        />
       </div>
 
-      {/* Top HUD Telemetry Strip */}
-      <div className="pointer-events-none absolute top-3 left-3 right-3 flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.2em] text-dim z-10">
-        <div className="flex items-center gap-2 bg-ink/75 backdrop-blur px-2.5 py-1 border border-bone/10">
+      {/* 2. Large, Sharp Orbiting Skill Badges (Revolving Outside the Sphere) */}
+      <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+        {skills.map((skill, idx) => (
+          <div
+            key={skill}
+            ref={(el) => (skillRefs.current[idx] = el)}
+            className="absolute top-1/2 left-1/2 pointer-events-none font-mono text-xs sm:text-sm uppercase font-bold tracking-wider px-3.5 py-1.5 rounded-full bg-[#08090c]/95 text-bone border-2 border-signal shadow-[0_0_16px_rgba(255,91,31,0.45)] backdrop-blur whitespace-nowrap will-change-transform"
+          >
+            <span className="text-signal mr-1.5 font-bold">›</span>
+            {skill}
+          </div>
+        ))}
+      </div>
+
+      {/* 3. Top HUD Telemetry Strip */}
+      <div className="pointer-events-none absolute top-3 left-3 right-3 flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.2em] text-dim z-30">
+        <div className="flex items-center gap-2 bg-ink/80 backdrop-blur px-2.5 py-1 border border-bone/10">
           <span className="h-1.5 w-1.5 rounded-full bg-signal animate-pulse" />
-          <span ref={stateRef}>CORE.STATUS // ACTIVE</span>
+          <span ref={stateRef}>CORE.STATUS // ORBITING</span>
         </div>
-        <div className="hidden sm:flex items-center gap-3 bg-ink/75 backdrop-blur px-2.5 py-1 border border-bone/10">
+        <div className="hidden sm:flex items-center gap-3 bg-ink/80 backdrop-blur px-2.5 py-1 border border-bone/10">
           <span ref={pitchRef}>PITCH: +0°</span>
           <span className="text-bone/20">|</span>
           <span ref={yawRef}>YAW: +0°</span>
         </div>
       </div>
 
-      {/* Bottom Interactive HUD Action Toolbar */}
-      <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.2em] z-10">
-        <span className="pointer-events-none hidden sm:inline-block text-dim bg-ink/75 backdrop-blur px-2.5 py-1 border border-bone/10">
-          DRAG TO ROTATE // INERTIA ON
+      {/* 4. Bottom Interactive Controls: Boost & Reset */}
+      <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.2em] z-30">
+        <span className="pointer-events-none hidden sm:inline-block text-dim bg-ink/80 backdrop-blur px-2.5 py-1 border border-bone/10">
+          DRAG SPHERE TO ROTATE
         </span>
 
         {/* Action Buttons */}
@@ -412,16 +418,16 @@ export default function HeroScene() {
           <button
             type="button"
             onClick={() => boostActionRef.current?.()}
-            className="cursor-pointer bg-ink/80 hover:bg-signal hover:text-ink text-bone/80 px-2.5 py-1 border border-bone/15 hover:border-signal transition-all duration-200 active:scale-95"
-            title="Accelerate core rotation"
+            className="cursor-pointer bg-ink/90 hover:bg-signal hover:text-ink text-bone px-3 py-1 border border-bone/20 hover:border-signal transition-all duration-200 active:scale-95 text-[10px] font-mono tracking-wider font-semibold"
+            title="Accelerate rotation"
           >
             ⚡ BOOST
           </button>
           <button
             type="button"
             onClick={() => resetActionRef.current?.()}
-            className="cursor-pointer bg-ink/80 hover:bg-bone hover:text-ink text-bone/80 px-2.5 py-1 border border-bone/15 transition-all duration-200 active:scale-95"
-            title="Reset core orientation"
+            className="cursor-pointer bg-ink/90 hover:bg-bone hover:text-ink text-bone px-3 py-1 border border-bone/20 transition-all duration-200 active:scale-95 text-[10px] font-mono tracking-wider"
+            title="Reset orientation"
           >
             ↺ RESET
           </button>
